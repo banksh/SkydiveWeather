@@ -7,7 +7,8 @@ locationName='KORE'
 #utc_zone = tz.gettz('UTC')
 #local_zone = tz.gettz('America/New_York')
 #timeKey_options = ["TimeEST", "TimeEDT"]
-locationID = 2465890 #FYI this is Orange, California
+#locationID = 2465890 #FYI this is Orange, California
+locationID = 2465887 #FYI I was totally testing you, this is Orange, MA
 
 
 
@@ -45,6 +46,9 @@ def getSunriseSunset(loctionID):
 		data_astro = [s.strip('\n').split('\n') for s in data]
 
 	#Returns a list of two strings, ['<sunrise>','<sunset>']
+	#Jesus Christ this is like a whole fucking program in itself. 
+	#240 character lines? Ain't nobody got screens fo' that.
+	#Does it seriously add a hardcoded "12"?
 	return [i.strip(' am') if ' am' in i else ':'.join([str(int(str(i).strip(' pm').split(':')[0])+12),str(i).strip(' pm').split(':')[1]]) for i in str([i for i in data_astro[0] if i.startswith('<yweather:astronomy')]).split('"')[1::2]]	
 
 exit()
