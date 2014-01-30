@@ -28,14 +28,21 @@ def getCurrentWeather(locationName, now):
 		data = u_w.read().split('<br />')[1:]
 		data = [s.strip('\n').split(',') for s in data[:-1]]
 		data_weather = [{s[0]:s[1:]} for s in data]
-	return data_weather[-1]
+		
+	try:
+		data_weather[-1]
+	except IndexError:
+		return "Early"
+		#It's around midnight and there hasn't been a reading yet.
+	else:
+		return data_weather[-1]
 
 
 ####### SUNRISE AND SUNSET ####### 
 # Get sunrise and sunset times
 #l=2465890;curl -s |sed -n 's/.*sunrise="\([0-9:]\{1,\}\).*="\([0-9:]\{1,\}\).*/\1 \2/p'
 
-def getSunriseSunset(loctionID):
+def getSunriseSunset(locationID):
 	url_astro = "http://weather.yahooapis.com/forecastrss?w=" + str(locationID)
 	try: 
 		u_a = urllib2.urlopen(url_astro)
