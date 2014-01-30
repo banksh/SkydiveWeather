@@ -55,3 +55,115 @@ exit()
 
 ######################## PROCESSING ########################
 # Daylight
+
+
+
+
+#### ALL OF THE FOLLOWING IS OLD AND TO BE UPDATED ####
+'''
+# Daylight
+def daylightTest(datetime_utc_string):
+
+    format_utc_in = '%Y-%m-%d %H:%M:%S'
+    
+    # Do the test
+    current_time=datetime.datetime.strptime(datetime_utc_string, format_utc_in)
+        
+    obs.date = current_time
+    next_rise_time = obs.next_rising(sun).datetime()
+    next_set_time = obs.next_setting(sun).datetime()
+        
+    # It's dark if the next sunrise is before the next sunset           
+    if ( next_rise_time < next_set_time ):
+        return 'Dark'
+    else:
+        return 'OK'
+
+allDays_df['Daylight']=allDays_df['DateUTC'].apply( lambda x: daylightTest(x) )
+
+# Winds
+def windTest(gust_speed):
+    try:
+        float(gust_speed)
+    except ValueError:
+        return 'NAN'
+    else:
+        if float(gust_speed)>20.0:
+            return 'Gusty'
+        else:
+            return 'OK'
+
+allDays_df['Gust SpeedMPH']=allDays_df['Gust SpeedMPH'].map(lambda x: float(0.0) if x == '-' else x )
+allDays_df['Winds'] = allDays_df['Gust SpeedMPH'].apply(lambda x: windTest(x) )
+
+# Temperature
+def tempTest(temp_F):
+    try:
+        float(temp_F)
+    except ValueError:
+        return 'NaN'
+    else:
+        if float(temp_F)<32.0:
+            return 'Freezing Cold'
+        elif float(temp_F)<50.0: #10C = 50F
+            return 'Cold'
+        else:
+            return 'OK'
+
+allDays_df['TemperatureF']=allDays_df['TemperatureF'].map(lambda x: 'NaN' if x == '' else x )
+allDays_df['Temperature'] = allDays_df['TemperatureF'].apply(lambda x: tempTest(x) )
+
+# Clouds
+def cloudTest(conditions):
+    if conditions not in ['Clear', 'Scattered Clouds', 'Partly Cloudy', 'Sunny', 'Mostly Sunny', 'Few Clouds']:
+        return 'Cloudy'
+    else:
+        return 'OK'
+
+allDays_df['Clouds'] = allDays_df['Conditions'].apply(lambda x: cloudTest(x) )
+
+# Jumpable Test
+def jumpTest(all_tests):
+    if all_tests['Daylight']=='OK' and all_tests['Winds']=='OK' and all_tests['Temperature']=='OK' and all_tests['Clouds']=='OK':
+        return 'YES'
+    else:
+        return 'NO'
+
+allDays_df['Jumpable'] = allDays_df[['Daylight', 'Winds', 'Temperature', 'Clouds']].apply(jumpTest, axis=1) # pass object row-wise
+
+
+# Make it an indexed Time Series, set as time zone aware
+allDays_df=allDays_df.set_index('DateUTC')
+allDays_df.index = pandas.to_datetime(allDays_df.index)
+allDays_df_utc = allDays_df.tz_localize('UTC')
+
+#allDays_df_utc.tz_convert('US/Eastern')
+
+# Clean up missing values
+allDays_df_utc = allDays_df_utc.replace('-9999', 'NaN')
+
+
+
+### Final Analysis
+
+def finalPrint(outputConds):
+    return outputConds['Daylight'] + ' ' + outputConds['Winds'] + ' ' + outputConds['Temperature'] + ' ' + outputConds['Clouds'] + ' ' + outputConds['Jumpable']
+
+allDays_df_utc['Finalout'] = allDays_df_utc[['Daylight', 'Winds', 'Temperature', 'Clouds', 'Jumpable']].apply(finalPrint, axis=1) # pass object row-wise
+
+timeofCheck = str(allDays_df_utc['Finalout'][-1:].tz_convert(computerTZ).index.values).split(":00")[0].split("T")
+jumpingStatus = allDays_df_utc['Finalout'][-1:].tz_convert(computerTZ)[-1].split()
+
+if 'YES' in jumpingStatus:
+    jumpingStatus = list(['Go Jumping!', 'YES'])
+else:
+    for element in jumpingStatus[:-1]:
+        if element=='OK':
+            jumpingStatus.remove(element)
+    
+
+# Output
+print 'At ' + str(locationName) + ' as of: ' + timeofCheck[0].replace("['", "") + ' ' + timeofCheck[1]
+print ' '.join(jumpingStatus[:-1])
+
+'''
