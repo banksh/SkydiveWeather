@@ -56,6 +56,7 @@ def getSunriseSunset(locationID):
 	#Jesus Christ this is like a whole fucking program in itself. 
 	#240 character lines? Ain't nobody got screens fo' that.
 	#Does it seriously add a hardcoded "12"?
+	#The 12 is to convert into 24 hour time if the string originally had 'pm' in it
 	return [i.strip(' am') if ' am' in i else ':'.join([str(int(str(i).strip(' pm').split(':')[0])+12),str(i).strip(' pm').split(':')[1]]) for i in str([i for i in data_astro[0] if i.startswith('<yweather:astronomy')]).split('"')[1::2]]	
 
 exit()
