@@ -15,9 +15,9 @@ locationID = 2465890
 now = datetime.datetime.now()
 
 ####### Today's Weather ####### 
-def getCurrentWeather(locationName):
+def getCurrentWeather(locationName, now):
 # Open wunderground.com url
-	url_weather = "http://www.wunderground.com/history/airport/" + str(locationName) + "/"+ str(y) + "/" + str(m) + "/" + str(d) + "/DailyHistory.html?theprefset=SHOWMETAR&theprefvalue=1&format=1"
+	url_weather = "http://www.wunderground.com/history/airport/%s/%s/%s/%s/DailyHistory.html?theprefset=SHOWMETAR&theprefvalue=1&format=1" %(str(locationName), str(now.year), str(now.month), str(now.day))
 
 	try: 
 		u_w = urllib2.urlopen(url_weather)
