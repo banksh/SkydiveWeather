@@ -7,7 +7,7 @@ locationName='KORE'
 #utc_zone = tz.gettz('UTC')
 #local_zone = tz.gettz('America/New_York')
 #timeKey_options = ["TimeEST", "TimeEDT"]
-locationID = 2465890
+locationID = 2465890 #FYI this is Orange, California
 
 
 
