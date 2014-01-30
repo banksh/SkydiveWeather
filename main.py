@@ -45,8 +45,7 @@ def getSunriseSunset(loctionID):
 		data_astro = [s.strip('\n').split('\n') for s in data]
 
 	#Returns a list of two strings, ['<sunrise>','<sunset>']
-	return str([i for i in data_astro[0] if i.startswith('<yweather:astronomy')]).split('"')[1::2]
-	
+	return [i.strip(' am') if ' am' in i else ':'.join([str(int(str(i).strip(' pm').split(':')[0])+12),str(i).strip(' pm').split(':')[1]]) for i in str([i for i in data_astro[0] if i.startswith('<yweather:astronomy')]).split('"')[1::2]]	
 
 exit()
 
