@@ -99,7 +99,7 @@ def daylightTest(datetime_local_string):
         
     # It's dark if it's not light
     if ( today_rise_time <= current_time ) and ( current_time <= today_set_time ):
-        return 'Daylight'
+        return 'Light'
     else:
         return 'Dark'
 
@@ -162,7 +162,7 @@ def jumpTest(all_tests):
         return 'NO'
 """
     goodCons = ['Clear','Scattered Clouds','Partly Cloudy', 'Sunny', 'Mostly Sunny', 'Few Clouds']
-    if all_tests['Daylight']=='Daylight' and all_tests['Winds'] <= windThresh and all_tests['Temperature'] >= tempThresh and all_tests['Clouds'] in goodCons:
+    if all_tests['Daylight']=='Light' and all_tests['Winds'] <= windThresh and all_tests['Temperature'] >= tempThresh and all_tests['Clouds'] in goodCons:
         return 'YES'
     else: return 'NO'
 
