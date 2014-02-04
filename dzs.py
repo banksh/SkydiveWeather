@@ -9,6 +9,8 @@ IDs ={"KORE":2465887,
 "KVRB":2490414,
 "KRIV":2434852,
 "KOKB":2464118,
+"KVYS":2466772,
+"KRPJ":2482924,
 }
 
 ## Gold Coast (Lumberton, MS)
@@ -32,3 +34,11 @@ IDs ={"KORE":2465887,
 ## Lake Elsinore CA
 #locationName='KRIV'
 
+## Oceanside, CA
+#KOKB
+
+## Skydive Chicago
+#KVYS
+
+## Chicagoland
+# KRPJ
