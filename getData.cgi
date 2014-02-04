@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import dzdaemon, conditions, dzs, cgitb, cgi, re
+import dzdaemon, conditions, dzs, cgitb, cgi, re, json
 
 cgitb.enable()
 fs = cgi.FieldStorage()
@@ -21,10 +21,10 @@ try:
     
     output = {'Jumpable':data['Jumpable']}
     del data['Jumpable']
-    output['Conditions'] = '</br>'.join(["%s: %s"%(key,data[key]) for key in data]), "</br></br>"
-    print "Content-type: text/plain"
+    output['Conditions'] = '</br>'.join(["%s: %s"%(key,data[key]) for key in data])
+    print "Content-type: text/json"
     print
-    print output
+    print json.dumps(output)
     #print '</br>'.join(["%s: %s"%(key,data[key]) for key in data]), "</br></br>", debug
 
 except KeyError:
