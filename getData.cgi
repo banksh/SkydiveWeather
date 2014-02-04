@@ -1,20 +1,29 @@
 #!/usr/bin/python
 
-import dzdaemon, conditions, dzs, cgitb, cgi
+import dzdaemon, conditions, dzs, cgitb, cgi, re
 
 cgitb.enable()
 fs = cgi.FieldStorage()
 
-dz_name = fs['airport'].value
+try: dz_name = str(fs['airport'].value)
+except: dz_name = 'error'
 
-if dzdaemon.cacheExists(dz_name):
-    data = dzdaemon.getData(dz_name)
-    debug = "Grabbed data from cache"
-else: 
-    data = conditions.getConditions(dz_name,dzs.IDs[dz_name])
-    dzdaemon.addToCache(dz_name, data, timeout=3600)
-    debug = "Had to update cache with data"
+if not re.match("^[a-zA-Z]+$", dz_name): dz_name = 'error'
 
-print "Content-type: text/plain"
-print
-print data, debug
+try:
+    if dzdaemon.cacheExists(dz_name):
+        data = dzdaemon.getData(dz_name)
+        debug = "Grabbed data from cache"
+    else: 
+        data = conditions.getConditions(dz_name,dzs.IDs[dz_name])
+        dzdaemon.addToCache(dz_name, data, timeout=3600)
+        debug = "Had to update cache with data"
+    print "Content-type: text/plain"
+    print
+    print '</br>'.join(["%s: %s"%(key,data[key]) for key in data]), "</br></br>", debug
+
+except KeyError:
+    print "Content-type: text/plain"
+    print
+    print "Invalid METAR location"
+

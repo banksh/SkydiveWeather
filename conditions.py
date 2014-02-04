@@ -4,7 +4,7 @@ import urllib2,datetime
 
 #Set thresholds
 windThresh = 20.
-tempThresh = 50. 
+tempThresh = 32. 
 
 #Define Good Conditions
 goodCons = ['Clear','Scattered Clouds','Partly Cloudy', 'Sunny', 'Mostly Sunny', 'Few Clouds']

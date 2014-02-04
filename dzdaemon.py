@@ -12,3 +12,6 @@ def addToCache(dz_name,dz_data,timeout):
 
 def getData(dz_name):
     return cache.get(dz_name)
+
+def eraseAll():
+    cache.flush_all()
