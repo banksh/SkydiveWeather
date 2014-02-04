@@ -4,7 +4,7 @@ import urllib2,datetime
 
 #Set thresholds
 windThresh = 20.
-tempThres = 50. 
+tempThresh = 50. 
 
 #Define Good Conditions
 goodCons = ['Clear','Scattered Clouds','Partly Cloudy', 'Sunny', 'Mostly Sunny', 'Few Clouds']
@@ -80,13 +80,13 @@ def daylightTest(datetime_local_string, locationID):
         return 'Light'
     else:
         return 'Dark'
-
+        
 # Winds
 def windTest(gust_speed):
     try:
         return float(gust_speed)
     except ValueError:
-        return 'NAN'
+        return 'NaN'
 
 # Temperature
 def tempTest(temp_F):
@@ -105,7 +105,7 @@ def cloudTest(conditions):
 '''
 
 # Clean up missing values?
-#allDays_df= allDays_df.replace('-9999', 'NaN')
+#todayData= todayData.replace('-9999', 'NaN')
 
 
 #### #### Jumpability Test #### ####
@@ -127,28 +127,25 @@ def getConditions(locationName,locationID):
 
     data_weather = getCurrentWeather(locationName, now)
     keyList = ['TimeLocal','TemperatureF','Dew PointF','Humidity','Sea Level PressureIn','VisibilityMPH','Wind Direction','Wind SpeedMPH','Gust SpeedMPH','PrecipitationIn','Events','Conditions','WindDirDegrees','DateUTC']
-    allDays_df = {keyList[i]: data_weather[i] for i in range(len(keyList))}
+    todayData = {keyList[i]: data_weather[i] for i in range(len(keyList))}
 
-    allDays_df['Daylight']=daylightTest(allDays_df['TimeLocal'], locationID)
+    todayData['Daylight']=daylightTest(todayData['TimeLocal'], locationID)
 
-    if allDays_df['Gust SpeedMPH'] == '-':
-        allDays_df['Gust SpeedMPH'] == float(0.0)
-    allDays_df['Winds'] = windTest(allDays_df['Gust SpeedMPH'])
+    if (todayData['Gust SpeedMPH'] == '-') or (todayData['Gust SpeedMPH'] == 'Calm'):
+        todayData['Gust SpeedMPH'] = float(0.0)
+    todayData['Winds'] = windTest(todayData['Gust SpeedMPH'])
 
-    # Unnecessary because of tempTest?
-    if allDays_df['TemperatureF'] == '':
-        allDays_df['TemperatureF'] == 'NaN'
-    allDays_df['Temperature'] = tempTest(allDays_df['TemperatureF'])
+    todayData['Temperature'] = tempTest(todayData['TemperatureF'])
 
-    allDays_df['Clouds'] = allDays_df['Conditions']
+    todayData['Clouds'] = todayData['Conditions']
 
-    importantValues = {k: allDays_df[k] for k in ['Daylight', 'Winds', 'Temperature', 'Clouds']}
-    allDays_df['Jumpable'] = jumpTest(importantValues)
+    importantValues = {k: todayData[k] for k in ['Daylight', 'Winds', 'Temperature', 'Clouds']}
+    todayData['Jumpable'] = jumpTest(importantValues)
 
-    finalDict = {k: allDays_df[k] for k in ['Daylight', 'Winds', 'Temperature', 'Clouds', 'Jumpable']}
-    allDays_df['Finalout'] = finalPrint(finalDict)
+    finalDict = {k: todayData[k] for k in ['Daylight', 'Winds', 'Temperature', 'Clouds', 'Jumpable']}
+    todayData['Finalout'] = finalPrint(finalDict)
 
-    finalDict['Sample Time'] = allDays_df['TimeLocal']
+    finalDict['Sample Time'] = todayData['TimeLocal']
 
     #conditionString = ''.join(["\n%s:%s"%(i,finalDict[i]) for i in finalDict])
 # Output
