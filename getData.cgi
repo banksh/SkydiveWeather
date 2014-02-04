@@ -18,9 +18,14 @@ try:
         data = conditions.getConditions(dz_name,dzs.IDs[dz_name])
         dzdaemon.addToCache(dz_name, data, timeout=3600)
         debug = "Had to update cache with data"
+    
+    output = {'Jumpable':data['Jumpable']}
+    del data['Jumpable']
+    output['Conditions'] = '</br>'.join(["%s: %s"%(key,data[key]) for key in data]), "</br></br>"
     print "Content-type: text/plain"
     print
-    print '</br>'.join(["%s: %s"%(key,data[key]) for key in data]), "</br></br>", debug
+    print output
+    #print '</br>'.join(["%s: %s"%(key,data[key]) for key in data]), "</br></br>", debug
 
 except KeyError:
     print "Content-type: text/plain"
