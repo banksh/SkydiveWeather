@@ -2,21 +2,14 @@
 
 import urllib2,datetime
 
-# KORE
-#locationName='KORE'
-#obs.lat = '42.57' #+N
-#obs.long= '-72.2885' #+E
-#utc_zone = tz.gettz('UTC')
-#local_zone = tz.gettz('America/New_York')
-#timeKey_options = ["TimeEST", "TimeEDT"]
-#locationID = 2465890 #FYI this is Orange, California
-#locationID = 2465887 #FYI I was totally testing you, this is Orange, MA
-
 #Set thresholds
 windThresh = 20.
 tempThres = 50. 
 
-####### Today's Weather #######
+#Define Good Conditions
+goodCons = ['Clear','Scattered Clouds','Partly Cloudy', 'Sunny', 'Mostly Sunny', 'Few Clouds']
+
+#### #### #### Today's Weather #### #### ####
 # TimeLocal,TemperatureF,Dew PointF,Humidity,Sea Level PressureIn,VisibilityMPH,Wind Direction,Wind SpeedMPH,Gust SpeedMPH,PrecipitationIn,Events,Conditions,WindDirDegrees,DateUTC
 def getCurrentWeather(locationName, now):
 # Open wunderground.com url
@@ -28,9 +21,7 @@ def getCurrentWeather(locationName, now):
         end()
     else:
         data = u_w.read().split('<br />')[1:]
-        data = [s.strip('\n').split(',') for s in data[:-1]]
-        #data_weather = [{s[0]:s[1:]} for s in data]
-        data_weather = data
+        data_weather = [s.strip('\n').split(',') for s in data[:-1]]
 
     try:
         data_weather[-1]
@@ -42,7 +33,7 @@ def getCurrentWeather(locationName, now):
         return data_weather[-1]
 
 
-####### SUNRISE AND SUNSET ####### 
+#### #### #### SUNRISE AND SUNSET #### #### ####
 # Get sunrise and sunset times
 #l=2465887;curl -s |sed -n 's/.*sunrise="\([0-9:]\{1,\}\).*="\([0-9:]\{1,\}\).*/\1 \2/p'
 
@@ -57,18 +48,12 @@ def getSunriseSunset(locationID):
         data_astro = [s.strip('\n').split('\n') for s in data]
 
     #Returns a list of two strings, ['<sunrise>','<sunset>']
-#<<<<<<< HEAD
-    #Jesus Christ this is like a whole fucking program in itself. 
     #240 character lines? Ain't nobody got screens fo' that.
-    #Does it seriously add a hardcoded "12"?
     #The 12 is to convert into 24 hour time if the string originally had 'pm' in it
-#=======
-    #Converts to 24 hour clock by adding 12 to pm.
-    #A 240 character line? Ain't nobody got screens fo' that.
-#>>>>>>> now working except for the final print
     return [i.strip(' am') if ' am' in i else ':'.join([str(int(str(i).strip(' pm').split(':')[0])+12),str(i).strip(' pm').split(':')[1]]) for i in str([i for i in data_astro[0] if i.startswith('<yweather:astronomy')]).split('"')[1::2]]    
 
-######################## PROCESSING ########################
+
+#### #### #### PROCESSING #### #### ####
 # Shove it in a dictionary:
 # TimeLocal,TemperatureF,Dew PointF,Humidity,Sea Level PressureIn,...
 # VisibilityMPH,Wind Direction,Wind SpeedMPH,Gust SpeedMPH,PrecipitationIn,...
@@ -102,12 +87,6 @@ def windTest(gust_speed):
         return float(gust_speed)
     except ValueError:
         return 'NAN'
-    """else:
-        if float(gust_speed)>20.0:
-            return 'Gusty'
-        else:
-            return 'OK'
-"""
 
 # Temperature
 def tempTest(temp_F):
@@ -116,38 +95,28 @@ def tempTest(temp_F):
     except ValueError:
         return 'NaN'
 
-        """if float(temp_F)<32.0:
-            return 'Freezing Cold'
-        elif float(temp_F)<50.0: #10C = 50F
-            return 'Cold'
-        else:
-            return 'OK'
-"""
 # Clouds
+'''
 def cloudTest(conditions):
-    if conditions not in ['Clear', 'Scattered Clouds', 'Partly Cloudy', 'Sunny', 'Mostly Sunny', 'Few Clouds']:
+    if conditions not in goodCons:
         return 'Cloudy'
     else:
         return 'OK'
+'''
 
-# Clean up missing values
-# DO THIS FOR DICTIONARY
+# Clean up missing values?
 #allDays_df= allDays_df.replace('-9999', 'NaN')
 
-# Jumpable Test
+
+#### #### Jumpability Test #### ####
 def jumpTest(all_tests):
-    """if all_tests['Daylight']=='OK' and all_tests['Winds']=='OK' and all_tests['Temperature']=='OK' and all_tests['Clouds']=='OK':
+    if all_tests['Daylight']=='Light' and all_tests['Winds'] <= windThresh and all_tests['Temperature'] >= tempThresh and all_tests['Clouds'] in goodCons:
         return 'YES'
     else:
         return 'NO'
-"""
-    goodCons = ['Clear','Scattered Clouds','Partly Cloudy', 'Sunny', 'Mostly Sunny', 'Few Clouds']
-    if all_tests['Daylight']=='Light' and all_tests['Winds'] <= windThresh and all_tests['Temperature'] >= tempThresh and all_tests['Clouds'] in goodCons:
-        return 'YES'
-    else: return 'NO'
 
-### Final Analysis
 
+#### #### Final Analysis #### ####
 def finalPrint(out):
     return ' '.join(map(str,out.values()))
 #    return outputConds['Daylight'] + ' ' + outputConds['Winds'] + ' ' + outputConds['Temperature'] + ' ' + outputConds['Clouds'] + ' ' + outputConds['Jumpable']
@@ -166,6 +135,7 @@ def getConditions(locationName,locationID):
         allDays_df['Gust SpeedMPH'] == float(0.0)
     allDays_df['Winds'] = windTest(allDays_df['Gust SpeedMPH'])
 
+    # Unnecessary because of tempTest?
     if allDays_df['TemperatureF'] == '':
         allDays_df['TemperatureF'] == 'NaN'
     allDays_df['Temperature'] = tempTest(allDays_df['TemperatureF'])
@@ -186,113 +156,3 @@ def getConditions(locationName,locationID):
     #return 'At %s as of %s:\n%s%s' %(str(locationName),timeofCheck,jumpingStatus,conditionString)
 
 if __name__ == '__main__': print "Test mode:\n", getConditions('KORE',2465887)
-
-
-#### ALL OF THE FOLLOWING IS OLD AND TO BE UPDATED ####
-'''
-# Daylight
-def daylightTest(datetime_utc_string):
-
-    format_utc_in = '%Y-%m-%d %H:%M:%S'
-    
-    # Do the test
-    current_time=datetime.datetime.strptime(datetime_utc_string, format_utc_in)
-        
-    obs.date = current_time
-    next_rise_time = obs.next_rising(sun).datetime()
-    next_set_time = obs.next_setting(sun).datetime()
-        
-    # It's dark if the next sunrise is before the next sunset           
-    if ( next_rise_time < next_set_time ):
-        return 'Dark'
-    else:
-        return 'OK'
-
-allDays_df['Daylight']=allDays_df['DateUTC'].apply( lambda x: daylightTest(x) )
-
-# Winds
-def windTest(gust_speed):
-    try:
-        float(gust_speed)
-    except ValueError:
-        return 'NAN'
-    else:
-        if float(gust_speed)>20.0:
-            return 'Gusty'
-        else:
-            return 'OK'
-
-allDays_df['Gust SpeedMPH']=allDays_df['Gust SpeedMPH'].map(lambda x: float(0.0) if x == '-' else x )
-allDays_df['Winds'] = allDays_df['Gust SpeedMPH'].apply(lambda x: windTest(x) )
-
-# Temperature
-def tempTest(temp_F):
-    try:
-        float(temp_F)
-    except ValueError:
-        return 'NaN'
-    else:
-        if float(temp_F)<32.0:
-            return 'Freezing Cold'
-        elif float(temp_F)<50.0: #10C = 50F
-            return 'Cold'
-        else:
-            return 'OK'
-
-allDays_df['TemperatureF']=allDays_df['TemperatureF'].map(lambda x: 'NaN' if x == '' else x )
-allDays_df['Temperature'] = allDays_df['TemperatureF'].apply(lambda x: tempTest(x) )
-
-# Clouds
-def cloudTest(conditions):
-    if conditions not in ['Clear', 'Scattered Clouds', 'Partly Cloudy', 'Sunny', 'Mostly Sunny', 'Few Clouds']:
-        return 'Cloudy'
-    else:
-        return 'OK'
-
-allDays_df['Clouds'] = allDays_df['Conditions'].apply(lambda x: cloudTest(x) )
-
-# Jumpable Test
-def jumpTest(all_tests):
-    if all_tests['Daylight']=='OK' and all_tests['Winds']=='OK' and all_tests['Temperature']=='OK' and all_tests['Clouds']=='OK':
-        return 'YES'
-    else:
-        return 'NO'
-
-allDays_df['Jumpable'] = allDays_df[['Daylight', 'Winds', 'Temperature', 'Clouds']].apply(jumpTest, axis=1) # pass object row-wise
-
-
-# Make it an indexed Time Series, set as time zone aware
-allDays_df=allDays_df.set_index('DateUTC')
-allDays_df.index = pandas.to_datetime(allDays_df.index)
-allDays_df_utc = allDays_df.tz_localize('UTC')
-
-#allDays_df_utc.tz_convert('US/Eastern')
-
-# Clean up missing values
-allDays_df_utc = allDays_df_utc.replace('-9999', 'NaN')
-
-
-
-### Final Analysis
-
-def finalPrint(outputConds):
-    return outputConds['Daylight'] + ' ' + outputConds['Winds'] + ' ' + outputConds['Temperature'] + ' ' + outputConds['Clouds'] + ' ' + outputConds['Jumpable']
-
-allDays_df_utc['Finalout'] = allDays_df_utc[['Daylight', 'Winds', 'Temperature', 'Clouds', 'Jumpable']].apply(finalPrint, axis=1) # pass object row-wise
-
-timeofCheck = str(allDays_df_utc['Finalout'][-1:].tz_convert(computerTZ).index.values).split(":00")[0].split("T")
-jumpingStatus = allDays_df_utc['Finalout'][-1:].tz_convert(computerTZ)[-1].split()
-
-if 'YES' in jumpingStatus:
-    jumpingStatus = list(['Go Jumping!', 'YES'])
-else:
-    for element in jumpingStatus[:-1]:
-        if element=='OK':
-            jumpingStatus.remove(element)
-    
-
-# Output
-print 'At ' + str(locationName) + ' as of: ' + timeofCheck[0].replace("['", "") + ' ' + timeofCheck[1]
-print ' '.join(jumpingStatus[:-1])
-
-'''
