@@ -2,7 +2,7 @@
 
 import memcache
 
-cache = memcache.Client(['localhost:12121'],debug=0)
+cache = memcache.Client(['127.0.0.1:11211'], debug=0)
 
 def cacheExists(dz_name):
     return cache.get(dz_name)
