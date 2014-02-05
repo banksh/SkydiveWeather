@@ -19,7 +19,7 @@ Which then downloads into the `pages/` directory
 
     $ python parse.py
 
-Goes through the HTML files downloads from the crawl and parses/sanitizes the data into the output file: `output/dropzones.json`
+Goes through the HTML files downloaded from the crawl and parses/sanitizes the data into the output file: `output/dropzones.json`
 
 ## JSON output file
 
