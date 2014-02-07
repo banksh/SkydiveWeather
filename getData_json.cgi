@@ -18,7 +18,7 @@ try:
         json_file = open('../../alldz_info.json')
         json_data = json.load(json_file)
         for item in json_data:
-            if item["location_code"] == "61C":
+            if item["location_code"] == dz_name:
                 woeid = item["woeid"]
         data = conditions.getConditions(dz_name,woeid)
         dzdaemon.addToCache(dz_name, data, timeout=3600)
