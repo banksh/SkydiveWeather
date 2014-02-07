@@ -56,7 +56,8 @@ if __name__ == "__main__":
     dz_count = 0
     dz_output = {}
     for dz in range(len(data)):
-        dz_cityname, dz_zip = (data[dz]['address'][-1].split(',')[0], data[dz]['address'][-1].split()[-1])
+        dz_cityname_temp, dz_zip = (data[dz]['address'][-1].split(',')[0], data[dz]['address'][-1].split()[-1])
+        dz_cityname = dz_cityname_temp.replace(' ', '%20')
         #Catches incomplete records
         if dz_cityname != dz_zip:
             try:
@@ -67,7 +68,10 @@ if __name__ == "__main__":
                     dz_output['woeid']=woeid
                     output_file.write(json.dumps(dz_output) + os.linesep)
                     dz_count += 1
-            except: continue
+            except: 
+                print find_WOEID(dz_cityname, dz_zip)
+                print data[dz]
+                print dz_cityname, dz_zip
     output_file.close()
     
     
