@@ -68,10 +68,7 @@ if __name__ == "__main__":
                     dz_output['woeid']=woeid
                     output_file.write(json.dumps(dz_output) + os.linesep)
                     dz_count += 1
-            except: 
-                print find_WOEID(dz_cityname, dz_zip)
-                print data[dz]
-                print dz_cityname, dz_zip
+            except: continue
     output_file.close()
     
     

@@ -24,6 +24,7 @@ input_filename = DEFAULT_INPUT_FILENAME
 input_file = open(input_filename, 'r')
 json_data = json.load(input_file)
 
+dz_count = 0
 dz_output = {}
 
 for item in json_data:
@@ -34,14 +35,17 @@ for item in json_data:
     try:
         page = urllib2.urlopen(url).read()
     
-        found_string = re.findall("[A-Z]{3,4}\sMETAR\shistory", page)[0]
+        found_string = re.findall("[A-Z]{3,4}\sTerminal\sArea", page)[0]
 
         dz_output['location_code']=found_string.split(" ")[0]
         dz_output['name']=item['name']
         dz_output['woeid']=item['woeid']
         output_file.write(json.dumps(dz_output) + os.linesep)
+        dz_count += 1
     except:
         continue
 
 input_file.close()
 output_file.close()
+
+print('Found ' + str(dz_count) + ' good dropzone records. Written to: ' + output_filename)
